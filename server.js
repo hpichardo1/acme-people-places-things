@@ -1,13 +1,11 @@
-const {conn, syncAndSeed, models: {People, Place, Thing}} = require('./db')
-
-//const { conn, syncAndSeed, models: { People, Place, Thing} } = require('./db');
+const {conn, syncAndSeed, models: {People, Place, Thing}} = require('./db');
 const express = require('express');
 const app = express();
 const port = 3000;
 const path = require('path');
-​
+
 app.use('/public', express.static(path.join(__dirname, 'public')));
-​
+
 app.get('/', async(req, res, next)=> {
     try {
         const [peoples, places, things] = await Promise.all([
@@ -25,7 +23,7 @@ app.get('/', async(req, res, next)=> {
         next(error)
     }
 })
-​
+
 const init = async () => {
     await conn.sync({force: true});
     await syncAndSeed();
@@ -33,7 +31,5 @@ const init = async () => {
     await app.listen(port, () => {
         console.log(`listenning on port ${port}`)
     });
-​
 }
-​
 init();
