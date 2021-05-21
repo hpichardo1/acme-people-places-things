@@ -1,4 +1,4 @@
-const Sequelize = require("sequelize");
+const Sequelize = require('sequelize');
 const { STRING } = Sequelize;
 const conn = new Sequelize('postgres://localhost/acmepeople');
 ​
