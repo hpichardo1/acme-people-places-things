@@ -1,5 +1,6 @@
 const Sequelize = require("sequelize");
-const { STRING } = Sequelize;
+
+const {DataTypes:{STRING, INTEGER}  } = Sequelize;
 const conn = new Sequelize('postgres://localhost/acmepeople');
 
 const data = {
@@ -10,19 +11,25 @@ const data = {
 
 const People = conn.define('people', {
     name: {
-        type: STRING
+        type: STRING,
+        allowNull: false,
+        unique: true
     }
 });
 
 const Place = conn.define('place', {
     name: {
-        type: STRING
+        type: STRING,
+        allowNull: false,
+        unique: true
     }
 });
 
 const Thing = conn.define('thing', {
     name: {
-        type: STRING
+        type: STRING,
+        allowNull: false,
+        unique: true
     }
 });
 
@@ -40,16 +47,17 @@ Thing.hasMany(Souvenir);
 
 const syncAndSeed = async() => {
     await conn.sync( {force: true} );
-    const peoples = await Promise.all(
-        data.people.map(people => People.create({ people }))
-    )
-    const places = await Promise.all(
-        data.places.map(place => People.create({ place }))
-    )
-    const things = await Promise.all(
-        data.things.map(thing => People.create({ thing }))
-    )
 
+    const peoples =  Promise.all(
+        data.people.map(people => People.create({people}))
+    )
+    const places =  Promise.all(
+        data.places.map(place => People.create({place}))
+    )
+    const things =  Promise.all(
+        data.things.map(thing => People.create({thing}))
+    )
+    const results = await Promise.all([peoples, places, things])
 };
 
 module.exports = {
