@@ -12,24 +12,18 @@ const data = {
 const People = conn.define('people', {
     name: {
         type: STRING,
-        allowNull: false,
-        unique: true
     }
 });
 
 const Place = conn.define('place', {
     name: {
         type: STRING,
-        allowNull: false,
-        unique: true
     }
 });
 
 const Thing = conn.define('thing', {
     name: {
         type: STRING,
-        allowNull: false,
-        unique: true
     }
 });
 
@@ -47,15 +41,16 @@ Thing.hasMany(Souvenir);
 
 const syncAndSeed = async() => {
     await conn.sync( {force: true} );
-
+// WHY store these promises in variables like peoples, but then export the models
+// 
     const peoples =  Promise.all(
-        data.people.map(people => People.create({people}))
+        data.people.map(name => People.create({name}))
     )
     const places =  Promise.all(
-        data.places.map(place => People.create({place}))
+        data.places.map(name => Place.create({name}))
     )
     const things =  Promise.all(
-        data.things.map(thing => People.create({thing}))
+        data.things.map(name => Thing.create({name}))
     )
     const results = await Promise.all([peoples, places, things])
 };
