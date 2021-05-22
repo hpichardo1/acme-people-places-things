@@ -41,8 +41,8 @@ Thing.hasMany(Souvenir);
 
 const syncAndSeed = async() => {
     await conn.sync( {force: true} );
-// WHY store these promises in variables like peoples, but then export the models
-// 
+// WHY store these promises in variables like peoples, 
+//but then NOT use them and  export the models 
     const peoples =  Promise.all(
         data.people.map(name => People.create({name}))
     )
