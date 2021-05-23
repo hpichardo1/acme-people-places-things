@@ -2,19 +2,23 @@ const {conn, syncAndSeed, models: {People, Place, Thing, Souvenir}} = require('.
 const express = require('express')
 const app = express();
 
-//why do models have acces to the actual table
+//1. why do models have acces to the actual table
+//2. 
 app.use(require('method-override')('_method'))
 app.use(express.urlencoded({extened: false}))
 
-// app.put('i dont know yet', async(req, res, next)=>{
-//     try {
 
-//         res.redirect('/')
-//     }
-//     catch (err){
-//            next(err)
-//     }
-// })
+app.post('/souvenir', async(req, res, next) => {
+    try{
+        const newPurchase = new Souvenir(req.body)
+        await newPurchase.save();
+        res.redirect('/')
+    }
+    catch(err){
+        next(err)
+    }
+})
+
 
 app.get('/', async(req, res, next)=>{
     try{
@@ -38,67 +42,35 @@ app.get('/', async(req, res, next)=>{
             <div class = 'person'> 
             <h1> Person</h1>
               <ul>
-                <form>
-                  <select>
+        <form>
+                  <select name="personId">
                       <option> select </option>
                       ${peoples.map(person => ` <option value = '${person.id}'>${person.name}</option>`).join()}
                    </select>
-                </form>
 
 
-
-                
-              </ul>
-            </div>
-
-            <div class = 'place'> 
             <h1> Place</h1>
-              <ul>
-              <form>
               <select>
-              <option> select </option>
+              <option name="placeId"> select </option>
                   ${places.map(place => ` <option value= ${place.id}>${place.name}</option>`).join()}
                </select>
-            </form>
-              </ul>
-            </div>
 
-            <div class = 'thing'> 
             <h1> Thing</h1>
-              <ul>
-              <form>
               <select>
-              <option> select </option>
+              <option name="thingId"> select </option>
                   ${things.map(thing => ` <option value= ${thing.id}>${thing.name}</option>`).join()}
                </select>
-            </form>
-              </ul>
-            </div>
 
-            <div id = 'dateAndCount'>
-
-            <input type="number">
-            
-            <input type="date" id="start" name="trip-start"
-       value="2018-07-22"
-       min="2018-01-01" max="2018-12-31">
-
-            </div>
-
-            <div method="POST" action="/souvenir" class="createbutton">
-            
-            <button>Create</button>
-            </div>
-
-            <div>
+            <input method="POST" type="submit" value="Purchase">
               <ul>
                ${souvenirs.map(d => {
-                   return  `
+                return  `
                    <li>${d.person.name} ${d.place.name} ${d.thing.name}</li>
                    `
                })}
               </ul>
-            
+        </form>
+        
             </div>
 
         </body>

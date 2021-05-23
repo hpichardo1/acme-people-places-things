@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 
 const {DataTypes:{STRING, INTEGER}  } = Sequelize;
-const conn = new Sequelize('postgres://localhost/acmepeople');
+const conn = new Sequelize('postgres://localhost/acmepeople', {logging: false});
 
 const data = {
     people: ['moe', 'larry', 'lucy', 'ethyl'],
@@ -48,7 +48,7 @@ const syncAndSeed = async() => {
     await data.things.forEach(d => Thing.create({name: d}))
     await Souvenir.create({ personId: 1, placeId: 1, thingId: 1 })
 
-    // const peoples =  Promise.all(
+    // const  =  Promise.all(
     //     data.people.map(name => People.create({name}))
     // )
     // const places =  Promise.all(
