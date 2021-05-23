@@ -43,16 +43,23 @@ const syncAndSeed = async() => {
     await conn.sync( {force: true} );
 // WHY store these promises in variables like peoples, 
 //but then NOT use them and  export the models 
-    const peoples =  Promise.all(
-        data.people.map(name => People.create({name}))
-    )
-    const places =  Promise.all(
-        data.places.map(name => Place.create({name}))
-    )
-    const things =  Promise.all(
-        data.things.map(name => Thing.create({name}))
-    )
-    const results = await Promise.all([peoples, places, things])
+    await data.people.forEach(d => People.create({name: d}))
+    await data.places.forEach(d => Place.create({name: d}))
+    await data.things.forEach(d => Thing.create({name: d}))
+    await Souvenir.create({ personId: 1, placeId: 1, thingId: 1 })
+
+    // const peoples =  Promise.all(
+    //     data.people.map(name => People.create({name}))
+    // )
+    // const places =  Promise.all(
+    //     data.places.map(name => Place.create({name}))
+    // )
+    // const things =  Promise.all(
+    //     data.things.map(name => Thing.create({name}))
+    // )
+    // const souvernirs = Promise.all(
+
+    // )
 };
 
 module.exports = {
@@ -61,6 +68,7 @@ module.exports = {
     models: {
         People,
         Place,
-        Thing
+        Thing, 
+        Souvenir
     }
 };
