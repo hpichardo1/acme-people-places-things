@@ -1,101 +1,138 @@
-const {conn, syncAndSeed, models: {People, Place, Thing, Souvenir}} = require('./db');
-const express = require('express')
+//require variables from db.js
+const {
+  conn,
+  syncAndSeed,
+  models: { People, Place, Thing, Souvenir },
+} = require("./db");
+const express = require("express");
 const app = express();
 
+// use MIDDDLEWARE to smooth out the process
 //1. why do models have acces to the actual table
-//2. 
-app.use(require('method-override')('_method'))
-app.use(express.urlencoded({extened: false}))
+app.use(require("method-override")("_method"));
+app.use(express.urlencoded({ extened: false }));
 
-
-app.post('/souvenir', async(req, res, next) => {
-    try{
-        const newPurchase = new Souvenir(req.body)
-        await newPurchase.save();
-        res.redirect('/')
-    }
-    catch(err){
-        next(err)
-    }
+//create routes
+app.delete('/souvenir/:id', async(req, res, next) => {
+  try {
+      console.log(req.params.id)
+      const souvenirInstance = await Souvenir.findByPk(req.params.id) 
+      souvenirInstance.destroy()
+      res.redirect('/')
+  } catch(err){
+      next(err)
+  }
 })
 
+app.post("/souvenir", async (req, res, next) => {
+  try {
+    const newPurchase = new Souvenir(req.body);
+    await newPurchase.save();
+    res.redirect('/')
+  } catch (err) {
+    next(err);
+  }
+});
 
-app.get('/', async(req, res, next)=>{
-    try{
-        const peoples = await People.findAll();
-        const places = await Place.findAll();
-        const things = await Thing.findAll()
-        const souvenirs =await Souvenir.findAll({
-            include: [
-                {model: People, required: true},
-                {model: Place, required: true},
-                {model: Thing, required: true}
-            ]
-        })
-        res.send(`
+app.get("/", async (req, res, next) => {
+  try {
+    const peoples = await People.findAll();
+    const places = await Place.findAll();
+    const things = await Thing.findAll();
+    // Souvenir table is empty in db.js, explain this step
+    const souvenirs = await Souvenir.findAll({
+      include: [
+        { model: People, required: true },
+        { model: Place, required: true },
+        { model: Thing, required: true },
+      ],
+    });
+    res.send(`
         <html>
         <head>
           <title> Acme People Places Things</title>
         </head>
         <body>
+          <div class = 'memories'>
+            <ul>
 
-            <div class = 'person'> 
             <h1> Person</h1>
-              <ul>
-        <form>
-                  <select name="personId">
-                      <option> select </option>
-                      ${peoples.map(person => ` <option value = '${person.id}'>${person.name}</option>`).join()}
-                   </select>
+          <form method="POST" action="/souvenir" type="submit" value="Purchase">
+                <select name="personId">
+                  
+                    ${peoples
+                      .map(
+                        (person) =>
+                          ` <option value ="${person.id}">${person.name}</option>`
+                      )
+                      .join()}
+                </select>
+
+                <h1> Place</h1>
+                  <select name="placeId">
+                   
+                    ${places
+                      .map(
+                        (place) =>
+                          ` <option value="${place.id}">${place.name}</option>`
+                      )
+                      .join()}
+                  </select>
+
+                <h1> Thing</h1>
+                <select name="thingId">
+                  
+                  ${things
+                    .map(
+                      (thing) =>
+                        ` <option value="${thing.id}">${thing.name}</option>`
+                    )
+                    .join()}
+                </select>
+
+               <input  type="submit" value="Purchase" >
+            </form>
 
 
-            <h1> Place</h1>
-              <select>
-              <option name="placeId"> select </option>
-                  ${places.map(place => ` <option value= ${place.id}>${place.name}</option>`).join()}
-               </select>
+            
+            ${souvenirs.map((d) => {
+                return `
+                
+                  <li> 
+                    ${d.person.name} ${d.place.name} ${d.thing.name}
+                  </li>
 
-            <h1> Thing</h1>
-              <select>
-              <option name="thingId"> select </option>
-                  ${things.map(thing => ` <option value= ${thing.id}>${thing.name}</option>`).join()}
-               </select>
-
-            <input method="POST" type="submit" value="Purchase">
-              <ul>
-               ${souvenirs.map(d => {
-                return  `
-                   <li>${d.person.name} ${d.place.name} ${d.thing.name}</li>
-                   `
-               })}
-              </ul>
-        </form>
-        
-            </div>
+                  <form method="POST" action="/souvenir/${d.id}?_method=DELETE" type="submit" >
+                  <button>X</button>
+                </form>`;
+              }).join('')}
+              
+            
+          </ul>
+          
+          </div>
 
         </body>
         </html>
-        `)
-    }
-    catch(ex){
-        next(ex)
-    }
-})
+        `);
+  } catch (ex) {
+    next(ex);
+  }
+});
 
 
-
-
+//function that is meant to invooke necessary functions
 const init = async () => {
-    try {
-    await conn.sync({force: true});
+  try {
+    await conn.sync({ force: true });
     await syncAndSeed();
     const port = 3000;
     await app.listen(port, () => {
-        console.log(`listenning on port ${port}`)
-    })
-    }
-    catch (error){
-        console.log(error, 'ERROR')
-    }
-}
+      console.log(`listenning on port ${port}`);
+    });
+  } catch (error) {
+    console.log(error, "ERROR");
+  }
+};
+//function invoked
 init();
