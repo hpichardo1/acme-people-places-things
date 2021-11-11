@@ -10,7 +10,7 @@ const app = express();
 // use MIDDDLEWARE to smooth out the process
 //1. why do models have acces to the actual table
 app.use(require("method-override")("_method"));
-app.use(express.urlencoded({ extened: false }));
+app.use(express.urlencoded({ extened: true }));
 
 //create routes
 app.delete('/souvenir/:id', async(req, res, next) => {
@@ -41,11 +41,7 @@ app.get("/", async (req, res, next) => {
     const things = await Thing.findAll();
     // Souvenir table is empty in db.js, explain this step
     const souvenirs = await Souvenir.findAll({
-      include: [
-        { model: People, required: true },
-        { model: Place, required: true },
-        { model: Thing, required: true },
-      ],
+      include: [ People, Place, Thing],
     });
     res.send(`
         <html>
@@ -90,26 +86,23 @@ app.get("/", async (req, res, next) => {
                     .join()}
                 </select>
 
-               <input  type="submit" value="Purchase" >
+               <button type="submit" value="Purchase">Purchase</button> 
             </form>
 
 
             
             ${souvenirs.map((d) => {
-                return `
-                
+              console.log('type-->', typeof d.thing.createdAt)  
+              return `                
                   <li> 
-                    ${d.person.name} ${d.place.name} ${d.thing.name}
+                    ${d.person.name} purchased 1 ${d.thing.name} in ${d.place.name} ${String(d.thing.createdAt).slice(0,15)} 
                   </li>
 
                   <form method="POST" action="/souvenir/${d.id}?_method=DELETE" type="submit" >
                   <button>X</button>
                 </form>`;
               }).join('')}
-              
-            
-          </ul>
-          
+            </ul>
           </div>
 
         </body>
@@ -134,5 +127,6 @@ const init = async () => {
     console.log(error, "ERROR");
   }
 };
+
 //function invoked
 init();

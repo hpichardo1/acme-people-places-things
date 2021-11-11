@@ -53,7 +53,6 @@ const syncAndSeed = async() => {
     const things = await Promise.all(
         data.things.map(thing => People.create({ thing }))
     )
-
 };
 ​
 module.exports = {
