@@ -88,9 +88,6 @@ app.get("/", async (req, res, next) => {
 
                <button type="submit" value="Purchase">Purchase</button> 
             </form>
-
-
-            
             ${souvenirs.map((d) => {
               console.log('type-->', typeof d.thing.createdAt)  
               return `                
