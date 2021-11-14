@@ -1,22 +1,22 @@
 //require variables from db.js
-const {
-  conn,
-  syncAndSeed,
-  models: { People, Place, Thing, Souvenir },
-} = require("./db");
+const { syncAndSeed, conn, models: {People, Place, Thing, Souvenir}} = require("./db");
+
+
 const express = require("express");
 const app = express();
 
 // use MIDDDLEWARE to smooth out the process
 //1. why do models have acces to the actual table
 app.use(require("method-override")("_method"));
-app.use(express.urlencoded({ extened: true }));
+
+
+app.use(express.urlencoded({ extended: true }));
 
 //create routes
 app.delete('/souvenir/:id', async(req, res, next) => {
   try {
       console.log(req.params.id)
-      const souvenirInstance = await Souvenir.findByPk(req.params.id) 
+      const souvenirInstance = await Souvenir.findByPK(req.params.id) 
       souvenirInstance.destroy()
       res.redirect('/')
   } catch(err){
@@ -59,7 +59,7 @@ app.get("/", async (req, res, next) => {
                     ${peoples
                       .map(
                         (person) =>
-                          ` <option value ="${person.id}">${person.name}</option>`
+                          ` <option value ="${person.id}">${person.firstName}</option>`
                       )
                       .join()}
                 </select>
@@ -70,7 +70,7 @@ app.get("/", async (req, res, next) => {
                     ${places
                       .map(
                         (place) =>
-                          ` <option value="${place.id}">${place.name}</option>`
+                          ` <option value="${place.id}">${place.place}</option>`
                       )
                       .join()}
                   </select>
@@ -88,14 +88,15 @@ app.get("/", async (req, res, next) => {
 
                <button type="submit" value="Purchase">Purchase</button> 
             </form>
-            ${souvenirs.map((d) => {
-              console.log('type-->', typeof d.thing.createdAt)  
+            ${souvenirs.map((souvenir) => {
+                //console.log('souvenir--->', souvenir)
+                console.log(typeof JSON.stringify(souvenir.createdAt))
               return `                
                   <li> 
-                    ${d.person.name} purchased 1 ${d.thing.name} in ${d.place.name} ${String(d.thing.createdAt).slice(0,15)} 
+                    ${souvenir.person.firstName} purchase 1 ${souvenir.thing.name} in ${JSON.stringify(souvenir.createdAt).slice(1,11)}.
                   </li>
 
-                  <form method="POST" action="/souvenir/${d.id}?_method=DELETE" type="submit" >
+                  <form method="POST" action="/souvenir/?_method=DELETE" type="submit" >
                   <button>X</button>
                 </form>`;
               }).join('')}
@@ -115,6 +116,7 @@ app.get("/", async (req, res, next) => {
 const init = async () => {
   try {
     await conn.sync({ force: true });
+
     await syncAndSeed();
     const port = 3000;
     await app.listen(port, () => {
